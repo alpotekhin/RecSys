@@ -2,7 +2,6 @@ import asyncio
 from concurrent.futures.thread import ThreadPoolExecutor
 from typing import Any, Dict
 
-
 from fastapi import FastAPI
 
 from ..log import app_logger, setup_logging
