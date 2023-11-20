@@ -5,7 +5,7 @@ from fastapi import APIRouter, FastAPI, Request, status, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
 
-from service.api.exceptions import ModelNotFoundError, UserNotFoundError
+from service.api.exceptions import ModelNotFoundError, UserNotFoundError, AuthenticationError
 from service.log import app_logger
 from service.api.utils import get_model_names
 from service.api.credentials import get_token
@@ -16,16 +16,16 @@ class RecoResponse(BaseModel):
 
 
 router = APIRouter()
-bearer_scheme = HTTPBearer()
+security = HTTPBearer()
 secret_token = get_token()
 
 
 async def read_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
+    credentials: HTTPAuthorizationCredentials = Depends(security),
 ) -> str:
     if credentials.credentials == secret_token:
         return credentials.credentials
-    raise ValueError()
+    raise AuthenticationError()
 
 @router.get(
     path="/health",
