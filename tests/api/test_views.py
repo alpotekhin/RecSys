@@ -1,8 +1,8 @@
 from http import HTTPStatus
-from service.api.credentials import get_token
 
 from starlette.testclient import TestClient
 
+from service.api.credentials import get_token
 from service.settings import ServiceConfig
 
 GET_RECO_PATH = "/reco/{model_name}/{user_id}"
@@ -15,7 +15,7 @@ def test_unauthorized(
     with client:
         response = client.get("/health", headers={f"Authorization": "NOT_SECRET_TOKEN"})
     assert response.status_code == HTTPStatus.FORBIDDEN
-    
+
 
 def test_health(
     client: TestClient,
@@ -61,4 +61,3 @@ def test_get_reco_for_unknown_model(
         response = client.get(path, headers={"Authorization": f"Bearer {api_token}"})
     assert response.status_code == HTTPStatus.NOT_FOUND
     assert response.json()["errors"][0]["error_key"] == "model_not_found"
-    

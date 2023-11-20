@@ -1,19 +1,13 @@
 import random
-from typing import List
 
-from fastapi import APIRouter, FastAPI, Request, status, Depends
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends, FastAPI, Request, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from service.api.exceptions import ModelNotFoundError, UserNotFoundError, AuthenticationError
-from service.log import app_logger
-from service.api.utils import get_model_names
 from service.api.credentials import get_token
-
-class RecoResponse(BaseModel):
-    user_id: int
-    items: List[int]
-
+from service.api.exceptions import AuthenticationError, ModelNotFoundError, UserNotFoundError
+from service.api.responses import HealthResponse, NotFoundResponse, RecoResponse, UnauthorizedResponse
+from service.api.utils import get_model_names
+from service.log import app_logger
 
 router = APIRouter()
 security = HTTPBearer()
@@ -27,10 +21,14 @@ async def read_current_user(
         return credentials.credentials
     raise AuthenticationError()
 
+
 @router.get(
     path="/health",
     tags=["Health"],
-
+    responses={
+        status.HTTP_200_OK: {"model": HealthResponse},
+        status.HTTP_401_UNAUTHORIZED: {"model": UnauthorizedResponse},
+    },
 )
 async def health(token: str = Depends(read_current_user)) -> str:
     return "I am alive"
@@ -40,28 +38,29 @@ async def health(token: str = Depends(read_current_user)) -> str:
     path="/reco/{model_name}/{user_id}",
     tags=["Recommendations"],
     response_model=RecoResponse,
-    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_200_OK: {"model": RecoResponse},
+        status.HTTP_401_UNAUTHORIZED: {"model": UnauthorizedResponse},
+        status.HTTP_404_NOT_FOUND: {"model": NotFoundResponse},
+    },
 )
 async def get_reco(
-    request: Request,
-    model_name: str,
-    user_id: int,
-    token: str = Depends(read_current_user)
+    request: Request, model_name: str, user_id: int, token: str = Depends(read_current_user)
 ) -> RecoResponse:
     app_logger.info(f"Request for model: {model_name}, user_id: {user_id}")
 
     # Write your code here
     existing_models = get_model_names()
-    
+
     if model_name not in existing_models:
         raise ModelNotFoundError(error_message=f"Model {model_name} not found")
-        
+
     if user_id > 10**9:
         raise UserNotFoundError(error_message=f"User {user_id} not found")
-    
+
     if model_name == "dummy":
         reco = random.sample(range(100), 10)
-    
+
     # k_recs = request.app.state.k_recs
     # reco = list(range(k_recs))
     return RecoResponse(user_id=user_id, items=reco)
