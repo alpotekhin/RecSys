@@ -1,4 +1,6 @@
+import pickle
 import random
+import pandas as pd
 
 from fastapi import APIRouter, Depends, FastAPI, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -6,13 +8,22 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from service.api.credentials import get_token
 from service.api.exceptions import AuthenticationError, ModelNotFoundError, UserNotFoundError
 from service.api.responses import HealthResponse, NotFoundResponse, RecoResponse, UnauthorizedResponse
-from service.api.utils import get_model_names
+from service.api.utils import get_knn_online_reco, get_model_names, get_popular_rec, get_knn_offline_reco
 from service.log import app_logger
 
 router = APIRouter()
 security = HTTPBearer()
 secret_token = get_token()
 
+
+with open("service/recmodels/tfidf_knn.pkl", "rb") as file:
+    knn_model = pickle.load(file)
+    
+with open("service/recmodels/most_popular.pkl", "rb") as file:
+    pop_recs = pickle.load(file)
+
+with open("service/recmodels/knn_preds.pkl", "rb") as file:
+    knn_preds = pickle.load(file)
 
 async def read_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
@@ -60,9 +71,13 @@ async def get_reco(
 
     if model_name == "dummy":
         reco = random.sample(range(100), 10)
+    elif model_name == "knn":
+        reco = get_knn_online_reco(user_id, knn_preds)
+        if not reco:
+            reco = get_popular_rec(user_id, pop_recs)
+        if len(reco) < 10:
+            reco = list(pd.unique(reco + get_popular_rec(user_id, pop_recs)))[:10]
 
-    # k_recs = request.app.state.k_recs
-    # reco = list(range(k_recs))
     return RecoResponse(user_id=user_id, items=reco)
 
 
