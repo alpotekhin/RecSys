@@ -67,3 +67,11 @@ venv.bak/
 .mypy_cache/
 
 
+notebooks/data_original/interactions.csv
+notebooks/data_original/users.csv
+.gitignore
+service/recmodels/most_popular.pkl
+service/recmodels/cosine_knn.pkl
+notebooks/data_original/items.csv
+service/recmodels/current_most_popular.pkl
+service/recmodels/tfidf_knn.pkl
