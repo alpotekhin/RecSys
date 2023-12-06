@@ -75,3 +75,4 @@ service/recmodels/cosine_knn.pkl
 notebooks/data_original/items.csv
 service/recmodels/current_most_popular.pkl
 service/recmodels/tfidf_knn.pkl
+service/recmodels/vector_recs.pkl
