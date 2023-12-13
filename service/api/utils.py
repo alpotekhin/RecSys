@@ -1,7 +1,7 @@
 import pandas as pd
 
 def get_model_names():
-    existing_models = ["dummy", "knn"]
+    existing_models = ["dummy", "knn", "vector"]
     return existing_models
 
 
@@ -30,4 +30,12 @@ def get_knn_offline_reco(user_id, knn_recs):
     
     else:
         return []
+
+
+def get_vector_offline_reco(user_id, vector_preds):
+    if user_id in vector_preds.keys():
+        recs = vector_preds[user_id]
+        return recs
     
+    else:
+        return []
