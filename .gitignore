@@ -68,6 +68,10 @@ venv.bak/
 
 
 notebooks/data_original/interactions.csv
+notebooks/data_original/interactions_processed_kion.csv
+notebooks/data_original/users_processed_kion.csv
+notebooks/data_original/items_processed_kion.csv
+
 notebooks/data_original/users.csv
 .gitignore
 service/recmodels/most_popular.pkl
@@ -76,3 +80,8 @@ notebooks/data_original/items.csv
 service/recmodels/current_most_popular.pkl
 service/recmodels/tfidf_knn.pkl
 service/recmodels/vector_recs.pkl
+notebooks/recsys_resnet_linear
+notebooks/runs
+notebooks/dssm_preds.csv
+service/recmodels/dssm_recs.pkl
+service/recmodels/encoder_recs.pkl
