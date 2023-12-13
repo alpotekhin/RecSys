@@ -8,7 +8,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from service.api.credentials import get_token
 from service.api.exceptions import AuthenticationError, ModelNotFoundError, UserNotFoundError
 from service.api.responses import HealthResponse, NotFoundResponse, RecoResponse, UnauthorizedResponse
-from service.api.utils import get_knn_online_reco, get_knn_offline_reco, get_model_names, get_popular_rec, get_vector_offline_reco
+from service.api.utils import get_knn_online_reco, get_model_names, get_popular_rec, get_model_offline_reco
 from service.log import app_logger
 
 router = APIRouter()
@@ -27,6 +27,12 @@ with open("service/recmodels/knn_preds.pkl", "rb") as file:
 
 with open("service/recmodels/vector_recs.pkl", "rb") as file:
     vector_preds = pickle.load(file)
+    
+with open("service/recmodels/dssm_recs.pkl", "rb") as file:
+    dssm_preds = pickle.load(file)
+
+with open("service/recmodels/encoder_recs.pkl", "rb") as file:
+    encoder_preds = pickle.load(file)
     
 async def read_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
@@ -82,6 +88,18 @@ async def get_reco(
             reco = list(pd.unique(reco + get_popular_rec(user_id, pop_recs)))[:10]
     elif model_name == "vector":
         reco = vector_preds[user_id]
+        if not reco:
+            reco = get_popular_rec(user_id, pop_recs)
+        if len(reco) < 10:
+            reco = list(pd.unique(reco + get_popular_rec(user_id, pop_recs)))[:10]
+    elif model_name == "dssm":
+        reco = dssm_preds[user_id]
+        if not reco:
+            reco = get_popular_rec(user_id, pop_recs)
+        if len(reco) < 10:
+            reco = list(pd.unique(reco + get_popular_rec(user_id, pop_recs)))[:10]
+    elif model_name == "encoder":
+        reco = encoder_preds[user_id]
         if not reco:
             reco = get_popular_rec(user_id, pop_recs)
         if len(reco) < 10:

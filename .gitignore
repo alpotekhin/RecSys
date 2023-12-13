@@ -83,3 +83,5 @@ service/recmodels/vector_recs.pkl
 notebooks/recsys_resnet_linear
 notebooks/runs
 notebooks/dssm_preds.csv
+service/recmodels/dssm_recs.pkl
+service/recmodels/encoder_recs.pkl
