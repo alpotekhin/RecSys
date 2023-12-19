@@ -85,3 +85,8 @@ notebooks/runs
 notebooks/dssm_preds.csv
 service/recmodels/dssm_recs.pkl
 service/recmodels/encoder_recs.pkl
+notebooks/data_original/ranker_test.csv
+notebooks/data_original/ranker_train.csv
+notebooks/data_original/ranker_val.csv
+service/recmodels/ranker_recs.pkl
+notebooks/knn_preds_scored.csv

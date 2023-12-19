@@ -34,6 +34,9 @@ with open("service/recmodels/dssm_recs.pkl", "rb") as file:
 with open("service/recmodels/encoder_recs.pkl", "rb") as file:
     encoder_preds = pickle.load(file)
     
+with open("service/recmodels/ranker_recs.pkl", "rb") as file:
+    ranker_preds = pickle.load(file)
+    
 async def read_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
 ) -> str:
@@ -100,6 +103,12 @@ async def get_reco(
             reco = list(pd.unique(reco + get_popular_rec(user_id, pop_recs)))[:10]
     elif model_name == "encoder":
         reco = encoder_preds[user_id]
+        if not reco:
+            reco = get_popular_rec(user_id, pop_recs)
+        if len(reco) < 10:
+            reco = list(pd.unique(reco + get_popular_rec(user_id, pop_recs)))[:10]
+    elif model_name == "ranker":
+        reco = ranker_preds[user_id]
         if not reco:
             reco = get_popular_rec(user_id, pop_recs)
         if len(reco) < 10:

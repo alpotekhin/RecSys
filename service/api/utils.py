@@ -1,7 +1,7 @@
 import pandas as pd
 
 def get_model_names():
-    existing_models = ["dummy", "knn", "vector", "dssm", "encoder"]
+    existing_models = ["dummy", "knn", "vector", "dssm", "encoder", "ranker"]
     return existing_models
 
 
